@@ -35,6 +35,7 @@
     panLeft           : false,
     panRight          : false,
     fit               : false,
+    fill              : false,
     destroy           : false,
     out_x1            : false,
     out_y1            : false,
@@ -91,10 +92,10 @@
 
     'readPosition': function () {
       var data = this.data('panZoom');
-      if (settings.out_x1) { data.position.x1 = settings.out_x1.val()*settings.factor }
-      if (settings.out_y1) { data.position.y1 = settings.out_y1.val()*settings.factor }
-      if (settings.out_x2) { data.position.x2 = settings.out_x2.val()*settings.factor }
-      if (settings.out_y2) { data.position.y2 = settings.out_y2.val()*settings.factor }
+      if (data.out_x1) { data.position.x1 = data.out_x1.val()*settings.factor }
+      if (data.out_y1) { data.position.y1 = data.out_y1.val()*settings.factor }
+      if (data.out_x2) { data.position.x2 = data.out_x2.val()*settings.factor }
+      if (data.out_y2) { data.position.y2 = data.out_y2.val()*settings.factor }
       methods.updatePosition.apply(this);
     },
 
@@ -110,6 +111,38 @@
       data.position.y1 = 0;
       data.position.x2 = data.viewport_dimensions.x;
       data.position.y2 = data.viewport_dimensions.y;
+      methods.updatePosition.apply(this);
+    },
+
+    'fill': function () {
+      // blablbalba
+      var data = this.data('panZoom');
+      // var zoom = 2;
+      // if (data.target_dimensions.ratio > 1) {
+      //   data.viewport_dimensions
+      // }
+      data.viewport_dimensions.ratio = data.viewport_dimensions.x / data.viewport_dimensions.y
+      
+      target = data.target_dimensions.ratio;
+      current = data.viewport_dimensions.ratio
+
+      // if (current > target) {
+      //   new_width = getHeight.apply(this) * target;
+      //   diff = getWidth.apply(this) - new_width;
+      //   data.position.x1 = data.position.x1*1 + (diff/2);
+      //   data.position.x2 = data.position.x2*1 - (diff/2);
+      // } else if (current < target) {
+      //   new_height = getWidth.apply(this) / target;
+      //   diff = getHeight.apply(this) - new_height;
+      //   data.position.y1 = data.position.y1*1 + (diff/2);
+      //   data.position.y2 = data.position.y2*1 - (diff/2);
+      // }
+      
+
+      // data.position.x1 = 0;
+      // data.position.y1 = 0;
+      // data.position.x2 = data.viewport_dimensions.x;
+      // data.position.y2 = data.viewport_dimensions.y;
       methods.updatePosition.apply(this);
     },
 
@@ -276,6 +309,11 @@
       data.bound_elements = data.bound_elements.add(settings.fit);
     }
 
+    if (settings.fill) { 
+      settings.fill.bind('click.panZoom', eventData, function(event) { event.preventDefault(); event.data.target.panZoom('fill'); } ); 
+      data.bound_elements = data.bound_elements.add(settings.fill);
+    }
+
     if (settings.destroy) {
       settings.destroy.bind('click.panZoom', eventData, function(event) { event.preventDefault(); event.data.target.panZoom('destroy'); } ); 
       data.bound_elements = data.bound_elements.add(settings.destroy);
@@ -297,8 +335,8 @@
 
     // direct form input
     if (settings.directedit) {
-      $(settings.out_x1).add(settings.out_y1).add(settings.out_x2).add(settings.out_y2).bind('change.panZoom blur.panZoom', eventData, function(event) { event.data.target.panZoom('readPosition') } );
-      data.bound_elements = data.bound_elements.add($(settings.out_x1).add(settings.out_y1).add(settings.out_x2).add(settings.out_y2));
+      $(data.out_x1).add(data.out_y1).add(data.out_x2).add(data.out_y2).bind('change.panZoom blur.panZoom', eventData, function(event) { event.data.target.panZoom('readPosition') } );
+      data.bound_elements = data.bound_elements.add($(data.out_x1).add(data.out_y1).add(data.out_x2).add(data.out_y2));
     }
 
     if (settings.draggable && typeof(this.draggable) == 'function') {
@@ -326,7 +364,11 @@
       loaded: false,
       mousewheel_delta: 0,
       mousedown_interval: false,
-      bound_elements: $()
+      bound_elements: $(),
+      out_x1: settings.out_x1,
+      out_y1: settings.out_y1,
+      out_x2: settings.out_x2,
+      out_y2: settings.out_y2
     });
     if (settings.debug) {
       console.log(this.data('panZoom'));
@@ -454,10 +496,10 @@
 
   function writePosition() {
     var data = this.data('panZoom');
-    if (settings.out_x1) { settings.out_x1.val(Math.round(data.position.x1 / settings.factor)) }
-    if (settings.out_y1) { settings.out_y1.val(Math.round(data.position.y1 / settings.factor)) }
-    if (settings.out_x2) { settings.out_x2.val(Math.round(data.position.x2 / settings.factor)) }
-    if (settings.out_y2) { settings.out_y2.val(Math.round(data.position.y2 / settings.factor)) }
+    if (data.out_x1) { data.out_x1.val(Math.round(data.position.x1 / settings.factor)) }
+    if (data.out_y1) { data.out_y1.val(Math.round(data.position.y1 / settings.factor)) }
+    if (data.out_x2) { data.out_x2.val(Math.round(data.position.x2 / settings.factor)) }
+    if (data.out_y2) { data.out_y2.val(Math.round(data.position.y2 / settings.factor)) }
   }
 
   function getStepDimensions() {
